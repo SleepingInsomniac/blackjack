@@ -53,7 +53,8 @@ class BlackJack
     @players.delete_if.with_index do |player, i|
       if player.money < BET_MIN
         puts "Player ##{i+1} has no more money"
-        puts "Player ##{i+1}: #{player.win_rate.round(2)}% (#{player.wins} / #{player.loses})"
+        puts "Max money #{player.max_money}"
+        puts "Win rate: #{player.win_rate.round(2)}% (#{player.wins} / #{player.loses})"
         true
       else
         false

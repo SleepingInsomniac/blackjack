@@ -1,6 +1,6 @@
 class BasicStrategy < Player
   def get_bet
-    return 'l' if @money >= 200
+    return 'l' if @money >= 500
     amount = @money < 10 ? @money : 10
     puts amount
     amount

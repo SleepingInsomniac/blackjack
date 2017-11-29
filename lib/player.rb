@@ -1,14 +1,16 @@
 class Player
-  attr_accessor :hand, :money, :wins, :loses
+  attr_accessor :hand, :money, :wins, :loses, :max_money
 
   def initialize(money = 100)
     @hand = Deck.new
     @money = money
+    @max_money = @money
     @wins = 0
     @loses = 0
   end
 
   def bet(amount)
+    @max_money = @money if @money > @max_money
     @money -= amount
     amount
   end

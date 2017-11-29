@@ -62,10 +62,11 @@ class BlackJack
   end
 
   def leave(player)
-    @players.delete_if.with_index do |player, i|
+    @players.delete_if.with_index do |p, i|
       if p == player 
-        puts "Player ##{i+1} has left with $#{player.money}"
-        puts "Player ##{i+1}: #{player.win_rate.round(2)}% (#{player.wins} / #{player.loses})"
+        puts "Player ##{i+1} has left with $#{p.money}"
+        puts "Player ##{i+1}: #{p.win_rate.round(2)}% (#{p.wins} / #{p.loses})"
+        true
       end
     end
   end
@@ -75,13 +76,12 @@ class BlackJack
     @players.each.with_index do |player, i|
       print "Player ##{i+1} (min #{BET_MIN}) (#{player.money}): "
       amount = 0
-      until amount.to_i >= BET_MIN && amount.to_i <= player.money
+      until (amount.to_i >= BET_MIN && amount.to_i <= player.money) || amount == 'l'
         amount = player.get_bet
-        break if amount == 'l'
       end
-      leave(player) and next if amount == 'l'
-      @bets[player] = player.bet(amount)
-      @house.money += amount
+      leave(player) if amount == 'l'
+      @bets[player] = player.bet(amount.to_i)
+      @house.money += amount.to_i
     end
   end
 

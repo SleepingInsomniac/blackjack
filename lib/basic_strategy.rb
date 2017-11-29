@@ -1,12 +1,19 @@
 class BasicStrategy < Player
+  def initialize(money = 100, thresh = 200)
+    super(money)
+    @thresh = thresh
+  end
+
   def get_bet
-    return 'l' if @money >= 500
+    sleep 0.1
+    return 'l' if @money >= @thresh
     amount = @money < 10 ? @money : 10
     puts amount
     amount
   end
 
   def get_play(game)
+    sleep 1
     up_card = game.house.hand.cards.first
     house_shown = BlackJack.value_for(Deck.new([up_card]))
     own_value = BlackJack.value_for(@hand)

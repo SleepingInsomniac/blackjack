@@ -53,7 +53,7 @@ class BlackJack
     @players.delete_if.with_index do |player, i|
       if player.money < BET_MIN
         puts "Player ##{i+1} has no more money"
-        puts "Max money #{player.max_money}"
+        puts "Max money #{player.max_money} at #{player.max_at}"
         puts "Win rate: #{player.win_rate.round(2)}% (#{player.wins} / #{player.loses})"
         true
       else
@@ -65,8 +65,10 @@ class BlackJack
   def leave(player)
     @players.delete_if.with_index do |p, i|
       if p == player 
+        puts "\n********************************************"
         puts "Player ##{i+1} has left with $#{p.money}"
         puts "Player ##{i+1}: #{p.win_rate.round(2)}% (#{p.wins} / #{p.loses})"
+        puts "********************************************\n"
         true
       end
     end
@@ -80,9 +82,13 @@ class BlackJack
       until (amount.to_i >= BET_MIN && amount.to_i <= player.money) || amount == 'l'
         amount = player.get_bet
       end
-      leave(player) if amount == 'l'
-      @bets[player] = player.bet(amount.to_i)
-      @house.money += amount.to_i
+      if amount == 'l'
+        leave(player)
+        @bets[player] = 'l'
+      else
+        @bets[player] = player.bet(amount)
+        @house.money += amount
+      end
     end
   end
 
@@ -132,6 +138,7 @@ class BlackJack
   def evaluate
     puts
     @players.each.with_index do |player, i|
+      next if @bets[player] == 'l'
       print "Player ##{i+1}: "
 
       if bust?(player.hand)
@@ -187,6 +194,7 @@ class BlackJack
     empty_hands
     puts "\nBets:"
     accept_bets
+    return if @players.count <= 0
     puts "\nDeal:"
     deal
     puts table

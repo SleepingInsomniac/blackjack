@@ -8,5 +8,5 @@ require 'blackjack'
 require 'basic_strategy'
 
 game = BlackJack.new
-1.times { game.players.push BasicStrategy.new }
+5.times { game.players.push BasicStrategy.new(500, 600) }
 game.start

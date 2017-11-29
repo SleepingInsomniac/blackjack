@@ -41,6 +41,7 @@ class BlackJack
     deck.shuffle
     @house = Player.new(0)
     @players = []
+    @removed_players = []
   end
 
   def empty_hands
@@ -53,8 +54,8 @@ class BlackJack
     @players.delete_if.with_index do |player, i|
       if player.money < BET_MIN
         puts "Player ##{i+1} has no more money"
-        puts "Max money #{player.max_money} at #{player.max_at}"
-        puts "Win rate: #{player.win_rate.round(2)}% (#{player.wins} / #{player.loses})"
+        puts "Max money #{player.stats[:max]} at #{player.stats[:max_at]}"
+        puts "Win rate: #{player.win_rate.round(2)}% (#{player.stats[:wins]} / #{player.stats[:loses]})"
         true
       else
         false
@@ -62,32 +63,25 @@ class BlackJack
     end
   end
 
-  def leave(player)
-    @players.delete_if.with_index do |p, i|
-      if p == player 
-        puts "\n********************************************"
-        puts "Player ##{i+1} has left with $#{p.money}"
-        puts "Player ##{i+1}: #{p.win_rate.round(2)}% (#{p.wins} / #{p.loses})"
-        puts "********************************************\n"
-        true
-      end
-    end
-  end
-
   def accept_bets
     @bets = {}
-    @players.each.with_index do |player, i|
+    @players.delete_if.with_index do |player, i|
       print "Player ##{i+1} (min #{BET_MIN}) (#{player.money}): "
       amount = 0
       until (amount.to_i >= BET_MIN && amount.to_i <= player.money) || amount == 'l'
         amount = player.get_bet
       end
       if amount == 'l'
-        leave(player)
-        @bets[player] = 'l'
+        puts "\n********************************************"
+        puts "Player ##{i+1} has left with $#{player.money}"
+        puts "Win rate: #{player.win_rate.round(2)}% (#{player.stats[:wins]} / #{player.stats[:loses]})"
+        puts "********************************************\n"
+        @removed_players.push player
+        true
       else
         @bets[player] = player.bet(amount)
         @house.money += amount
+        false
       end
     end
   end
@@ -143,7 +137,7 @@ class BlackJack
 
       if bust?(player.hand)
         puts "Bust.."
-        player.loses += 1
+        player.stats[:loses] += 1
         next
       end
 
@@ -154,7 +148,7 @@ class BlackJack
           @house.money -= @bets[player]
         else
           puts "Blackjack!"
-          player.wins += 1
+          player.stats[:wins] += 1
           player.money += @bets[player] * 2.5
           @house.money -= @bets[player] * 2.5
         end
@@ -163,7 +157,7 @@ class BlackJack
 
       if bust?(@house.hand)
         puts "House busts!"
-        player.wins += 1
+        player.stats[:wins] += 1
         player.money += @bets[player] * 2
         @house.money -= @bets[player] * 2
         next
@@ -178,11 +172,11 @@ class BlackJack
 
       if value_for(@house.hand) < value_for(player.hand)
         puts "Win!"
-        player.wins += 1
+        player.stats[:wins] += 1
         player.money += @bets[player] * 2
         @house.money -= @bets[player] * 2
       else
-        player.loses += 1
+        player.stats[:loses] += 1
         puts "Lose!"
       end
     end

@@ -1,9 +1,9 @@
 class BlackJack
-  BET_MIN = 5
+  BET_MIN = 5.0
 
   def self.blackjack?(hand)
     value = value_for(hand)
-    value == 21 && hand.count = 2 && hand.has?('A') && hand.has_any?(%w[10 J Q K])
+    value == 21 && hand.count == 2 && hand.has?('A') && hand.has_any?(%w[10 J Q K])
   end
 
   def blackjack?(hand)
@@ -53,6 +53,7 @@ class BlackJack
     @players.delete_if.with_index do |player, i|
       if player.money < BET_MIN
         puts "Player ##{i+1} has no more money"
+        puts "Player ##{i+1}: #{player.win_rate.round(2)}% (#{player.wins} / #{player.loses})"
         true
       else
         false
@@ -60,14 +61,25 @@ class BlackJack
     end
   end
 
+  def leave(player)
+    @players.delete_if.with_index do |player, i|
+      if p == player 
+        puts "Player ##{i+1} has left with $#{player.money}"
+        puts "Player ##{i+1}: #{player.win_rate.round(2)}% (#{player.wins} / #{player.loses})"
+      end
+    end
+  end
+
   def accept_bets
     @bets = {}
     @players.each.with_index do |player, i|
+      print "Player ##{i+1} (min #{BET_MIN}) (#{player.money}): "
       amount = 0
-      until amount >= BET_MIN && amount <= player.money
-        print "Player ##{i+1} (min #{BET_MIN}) (#{player.money}): "
+      until amount.to_i >= BET_MIN && amount.to_i <= player.money
         amount = player.get_bet
+        break if amount == 'l'
       end
+      leave(player) and next if amount == 'l'
       @bets[player] = player.bet(amount)
       @house.money += amount
     end
@@ -123,6 +135,7 @@ class BlackJack
 
       if bust?(player.hand)
         puts "Bust.."
+        player.loses += 1
         next
       end
 
@@ -133,6 +146,7 @@ class BlackJack
           @house.money -= @bets[player]
         else
           puts "Blackjack!"
+          player.wins += 1
           player.money += @bets[player] * 2.5
           @house.money -= @bets[player] * 2.5
         end
@@ -141,6 +155,7 @@ class BlackJack
 
       if bust?(@house.hand)
         puts "House busts!"
+        player.wins += 1
         player.money += @bets[player] * 2
         @house.money -= @bets[player] * 2
         next
@@ -155,9 +170,11 @@ class BlackJack
 
       if value_for(@house.hand) < value_for(player.hand)
         puts "Win!"
+        player.wins += 1
         player.money += @bets[player] * 2
         @house.money -= @bets[player] * 2
       else
+        player.loses += 1
         puts "Lose!"
       end
     end
@@ -182,7 +199,9 @@ class BlackJack
   end
 
   def start
+    round_number = 0
     loop do
+      puts "Round ##{round_number += 1}"
       remove_deadbeats
       break if @players.count <= 0
       hand

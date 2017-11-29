@@ -1,9 +1,11 @@
 class Player
-  attr_accessor :hand, :money
+  attr_accessor :hand, :money, :wins, :loses
 
   def initialize(money = 100)
     @hand = Deck.new
     @money = money
+    @wins = 0
+    @loses = 0
   end
 
   def bet(amount)
@@ -27,5 +29,13 @@ class Player
 
   def get_play(game = nil)
     gets.chomp
+  end
+
+  def rounds_played
+    @wins + @loses
+  end
+
+  def win_rate
+    (@wins.to_f / rounds_played.to_f) * 100
   end
 end

@@ -13,8 +13,8 @@ class Deck
 
   attr_accessor :cards, :discard
 
-  def initialize
-    @cards = []
+  def initialize(cards = [])
+    @cards = cards
     @discard = []
   end
 
@@ -57,6 +57,10 @@ class Deck
 
   def has_suit?(suit)
     @cards.map(&:suit).any? {|s| s == suit}
+  end
+
+  def count
+    @cards.count
   end
 
   def to_s

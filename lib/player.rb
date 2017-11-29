@@ -20,4 +20,12 @@ class Player
       deck.discard(@hand.draw)
     end
   end
+
+  def get_bet
+    gets.chomp.to_i
+  end
+
+  def get_play(game = nil)
+    gets.chomp
+  end
 end

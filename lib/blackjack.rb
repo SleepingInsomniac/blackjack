@@ -1,6 +1,38 @@
 class BlackJack
   BET_MIN = 5
 
+  def self.blackjack?(hand)
+    value = value_for(hand)
+    value == 21 && hand.count = 2 && hand.has?('A') && hand.has_any?(%w[10 J Q K])
+  end
+
+  def blackjack?(hand)
+    BlackJack.blackjack?(hand)
+  end
+
+  def self.bust?(hand)
+    value_for(hand) > 21
+  end
+
+  def bust?(hand)
+    BlackJack.bust?(hand)
+  end
+
+  def self.value_for(hand)
+    total = 0
+    hand.cards.each do |card|
+      value = card.value.to_i
+      value = 1 if card.value == 'A'
+      total += value == 0 ? 10 : value
+    end
+    total += 10 if hand.has?('A') && total <= 11
+    total
+  end
+
+  def value_for(hand)
+    BlackJack.value_for(hand)
+  end
+
   attr_accessor :deck, :house, :players
 
   def initialize(decks = 6)
@@ -34,7 +66,7 @@ class BlackJack
       amount = 0
       until amount >= BET_MIN && amount <= player.money
         print "Player ##{i+1} (min #{BET_MIN}) (#{player.money}): "
-        amount = gets.chomp.to_i
+        amount = player.get_bet
       end
       @bets[player] = player.bet(amount)
       @house.money += amount
@@ -54,24 +86,13 @@ class BlackJack
     TABLE
   end
 
-  def value_for(hand)
-    total = 0
-    hand.cards.each do |card|
-      value = card.value.to_i
-      value = 1 if card.value == 'A'
-      total += value == 0 ? 10 : value
-    end
-    total += 10 if hand.has?('A') && total <= 11
-    total
-  end
-
   def play
     @players.each.with_index do |player, i|
       puts "Player ##{i+1}:"
       complete = false
       until complete
         print "#{player.hand} (#{value_for(player.hand)}): "
-        action = gets.chomp
+        action = player.get_play(self)
         case action
         when 'h'
           player.draw(@deck)
@@ -93,15 +114,6 @@ class BlackJack
       @house.draw(@deck)
       puts "House: #{@house.hand} (#{value_for(@house.hand)})"
     end
-  end
-
-  def blackjack?(hand)
-    value = value_for(hand)
-    value == 21 && hand.count = 2 && hand.has?('A') && hand.has_any?(%w[10 J Q K])
-  end
-
-  def bust?(hand)
-    value_for(hand) > 21
   end
 
   def evaluate

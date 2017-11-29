@@ -9,4 +9,6 @@ require 'basic_strategy'
 
 game = BlackJack.new
 game.players.push BasicStrategy.new
+game.players.push BasicStrategy.new
+game.players.push BasicStrategy.new
 game.start
